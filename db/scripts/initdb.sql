@@ -12,13 +12,16 @@ create table room (
     description varchar(50)
 );
 
+CREATE TYPE booking_status AS ENUM ('reserved', 'checking', 'checkout', 'canceled');
+
 create table booking (
     id serial primary key,
     customer_id int NOT NULL,
     room_id int NOT NULL,
-    started_datetime date,
-    finished_datetime date,
-    status boolean,
+    start_datetime timestamp NOT NULL,
+    end_datetime timestamp NOT NULL,
+    status booking_status NOT NULL,
+    parking bool NOT NULL,
     foreign key (customer_id) REFERENCES customer (id),
     foreign key (room_id) REFERENCES room (id)
 );
@@ -26,8 +29,8 @@ create table booking (
 create table checkin (
     id serial primary key,
     booking_id int NOT NULL,
-    checking_datetime date,
-    checkout_datetime date,
+    checking_datetime timestamp NOT NULL,
+    checkout_datetime timestamp,
     foreign key (booking_id) REFERENCES booking (id)
 );
 
@@ -39,11 +42,26 @@ create table bill (
     foreign key (booking_id) REFERENCES booking (id)
 );
 
+CREATE TYPE payments AS ENUM ('credit card', 'cash', 'pix');
+
 create table payment (
     id serial primary key,
     bill_id int NOT NULL,
     value numeric(5, 3),
-    type_payment varchar(10),
+    type_payment payments,
     installments int,
     foreign key (bill_id) REFERENCES bill (id)
 );
+
+INSERT INTO customer ("name","document",phone_number,email) VALUES
+	 ('Vanessa','40160539862','11966698730','vanessa.nunes@hotmail.com');
+
+INSERT INTO room (room_number,description) VALUES
+	 (1,'Quarto Azul'),
+	 (2,'quarto Rosa');
+
+INSERT INTO booking (customer_id,room_id,start_datetime,end_datetime,status,parking) VALUES
+	 (1,2,'2023-05-17 19:17:40.26867','2023-05-18 14:00:00','checking',false);
+
+
+
