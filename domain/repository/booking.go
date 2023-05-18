@@ -19,7 +19,6 @@ func (repo Connection) InsertBooking(booking models.Booking) (id int64, err erro
 func (repo Connection) GetBooking(booking_id int) (booking models.Booking, err error) {
 	sql := `SELECT * FROM booking WHERE id = $1`
 	row := repo.db.QueryRow(sql, booking_id)
-	defer repo.db.Close()
 
 	err = row.Scan(&booking.ID, &booking.CustomerID, &booking.RoomID, &booking.StartDatetime, &booking.EndDatetime, &booking.Status, &booking.Parking)
 	if err != nil {

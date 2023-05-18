@@ -10,5 +10,5 @@ func ParkingTotalValue(DateStart string, DateEnd string) float32 {
 }
 
 func CalculateParkingTotalValue(weekday int, weekend int) float32 {
-	return (float32(weekday) * weekdayParkValue) + (float32(weekday) * weekdayParkValue)
+	return (float32(weekday) * weekdayParkValue) + (float32(weekend) * weekendParkValue)
 }

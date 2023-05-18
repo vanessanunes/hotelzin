@@ -18,7 +18,7 @@ func (repo Connection) InsertChecking(checking models.Checking) (id int64, err e
 }
 
 func (repo Connection) UpdateChecking(id int64, checking models.Checking) (int64, error) {
-	res, err := repo.db.Exec(`UPDATE checkin SET booking_id=$1, checking_datetime=$2, checkout_datetime=$3 WHERE id=$4`, checking.BookingId, checking.CheckingDatetime, checking.CheckoutDatetime, id)
+	res, err := repo.db.Exec(`UPDATE checkin SET booking_id=$1, checking_datetime=$2 WHERE id=$3`, checking.BookingId, checking.CheckingDatetime, id)
 	if err != nil {
 		log.Println(err)
 	}
@@ -27,7 +27,16 @@ func (repo Connection) UpdateChecking(id int64, checking models.Checking) (int64
 	return res.RowsAffected()
 }
 
-func (repo Connection) GetALLCheckings() (checkings []models.Checking, err error) {
+func (repo Connection) UpdateCheckout(id int64, checking models.Checking) (int64, error) {
+	res, err := repo.db.Exec(`UPDATE checkin SET booking_id=$1, checking_datetime=$2, checkout_datetime=$3 WHERE id=$4`, checking.BookingId, checking.CheckingDatetime, checking.CheckoutDatetime, id)
+	if err != nil {
+		log.Println(err)
+	}
+
+	return res.RowsAffected()
+}
+
+func (repo Connection) GetAllCheckings() (checkings []models.Checking, err error) {
 	conn, err := db.OpenConnection()
 	if err != nil {
 		log.Println(err)

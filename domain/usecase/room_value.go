@@ -10,5 +10,5 @@ func RoomTotalValue(DateStart string, DateEnd string) float32 {
 }
 
 func CalculateRoomTotalValue(weekday int, weekend int) float32 {
-	return float32(weekday)*weekdayRoomValue + float32(weekday)*weekdayRoomValue
+	return float32(weekday)*weekdayRoomValue + float32(weekend)*weekendRoomValue
 }
