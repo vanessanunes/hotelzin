@@ -2,7 +2,6 @@ package repository
 
 import (
 	"log"
-	"serasa-hotel/db"
 	"serasa-hotel/models"
 )
 
@@ -37,13 +36,7 @@ func (repo Connection) UpdateCheckout(id int64, checking models.Checking) (int64
 }
 
 func (repo Connection) GetAllCheckings() (checkings []models.Checking, err error) {
-	conn, err := db.OpenConnection()
-	if err != nil {
-		log.Println(err)
-	}
-	defer conn.Close()
-
-	rows, err := conn.Query(`SELECT * FROM checkin`)
+	rows, err := repo.db.Query(`SELECT * FROM checkin`)
 	if err != nil {
 		log.Println(err)
 	}
@@ -57,5 +50,16 @@ func (repo Connection) GetAllCheckings() (checkings []models.Checking, err error
 		checkings = append(checkings, checking)
 	}
 
+	return
+}
+
+func (repo Connection) GetChecking(id int64) (checking models.Checking, err error) {
+	row := repo.db.QueryRow(`SELECT * FROM checkin where id=$1`, id)
+	defer repo.db.Close()
+
+	err = row.Scan(&checking.ID, &checking.BookingId, &checking.CheckingDatetime, &checking.CheckoutDatetime)
+	if err != nil {
+		log.Println(err)
+	}
 	return
 }
