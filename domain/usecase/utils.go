@@ -7,7 +7,19 @@ import (
 
 func ConvertStringToDate(DateStart string, DateEnd string) (time.Time, time.Time) {
 	layout := "2006-01-02 15:04"
-	// layout := "2006-04-02 15:04"
+	DateStartTime, err := time.Parse(layout, DateStart)
+	if err != nil {
+		fmt.Println(err)
+	}
+	DateEndTime, err := time.Parse(layout, DateEnd)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return DateStartTime, DateEndTime
+}
+
+func ConvertDBDateToDateTime(DateStart string, DateEnd string) (time.Time, time.Time) {
+	layout := "2006-01-02T15:04:05Z"
 	DateStartTime, err := time.Parse(layout, DateStart)
 	if err != nil {
 		fmt.Println(err)
@@ -22,6 +34,10 @@ func ConvertStringToDate(DateStart string, DateEnd string) (time.Time, time.Time
 func CountWeekDayAndWeekEnd(DateStart time.Time, DateEnd time.Time) (weekend int, weekday int) {
 	diff := DateEnd.Sub(DateStart)
 	diff_days := diff.Hours() / 24
+
+	if int(diff_days) == 0 {
+		diff_days = 1
+	}
 
 	for i := 0; i < int(diff_days); i++ {
 		compareDate := DateStart
