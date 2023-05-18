@@ -56,9 +56,59 @@ create table payment (
 INSERT INTO customer ("name","document",phone_number,email) VALUES
 	 ('Vanessa','44154875485','11966698722','vanessa.nunes@hotmail.com');
 
+
 INSERT INTO room (room_number,description) VALUES
 	 (1,'Quarto Azul'),
-	 (2,'quarto Rosa');
+	 (2,'Quarto Azul Claro'),
+     (3,'Quarto Azul Escuro'),
+     (4,'Quarto Azul Marinho'),
+     (5,'Quarto Azul Acizentado'),
+     (6,'Quarto Azul Acidentado, rs'),
+     (7,'Quarto Azul Piscina'),
+     (8,'Quarto Azul Perolado'),
+     (9,'Quarto Azul Nude'),
+     (10,'Quarto Rosa'),
+     (11,'Quarto Rosa Claro'),
+     (12,'Quarto Rosa Escuro'),
+     (13,'Quarto Rosa Marsala'),
+     (14,'Quarto Rosa Antigo'),
+     (15,'Quarto Rosé'),
+     (16,'Quarto Coral'),
+     (17,'Quarto Salmon'),
+     (18,'Quarto Fuscia'),
+     (19,'Quarto Rouge'),
+     (20,'Quarto Bubblegum'),
+     (21,'Quarto Rosa Quente'),
+     (22,'Quarto Verde'),
+     (23,'Quarto Verde Limão'),
+     (24,'Quarto Verde Broto'),
+     (25,'Quarto Verde Chá'),
+     (26,'Quarto Verde Musgo'),
+     (27,'Quarto Verde Jade'),
+     (28,'Quarto Verde Grama'),
+     (29,'Quarto Verde Floresta'),
+     (30,'Quarto Verde Escuto'),
+     (31,'Quarto Verde Primavera'),
+     (32,'Quarto Vermelho Magenta'),
+     (33,'Quarto Vermelho Marsala'),
+     (34,'Quarto Laranja Vermelho'),
+     (35,'Quarto Vermelho Shine'),
+     (36,'Quarto Rubi'),
+     (37,'Quarto Vermelho Falu'),
+     (38,'Quarto Coral'),
+     (39,'Quarto Alizarina'),
+     (41,'Quarto Amaranto'),
+     (42,'Quarto Bordô'),
+     (43,'Quarto Carmesin'),
+     (44,'Quarto Conralina'),
+     (45,'Quarto Cereja'),
+     (46,'Quarto Caneta Azul'),
+     (47,'Quarto Pergaminho'),
+     (48,'Quarto Prata'),
+     (49,'Quarto Elefante'),
+     (50,'Quarto Patativa');
+
+
 
 INSERT INTO booking (customer_id,room_id,start_datetime,end_datetime,status,parking) VALUES
 	 (1,2,'2023-05-17 19:17:40.26867','2023-05-18 14:00:00','checking',true);
