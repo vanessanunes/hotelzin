@@ -8,7 +8,7 @@ import (
 func (repo Connection) InsertBooking(booking models.Booking) (id int64, err error) {
 	sql := `INSERT INTO booking (customer_id, room_id, start_datetime, end_datetime, status, parking) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
 
-	err = repo.db.QueryRow(sql, booking.CustomerID, booking.RoomID, booking.StartDatetime, booking.EndDatetime, booking.Status).Scan(&id)
+	err = repo.db.QueryRow(sql, booking.CustomerID, booking.RoomID, booking.StartDatetime, booking.EndDatetime, booking.Status, booking.Parking).Scan(&id)
 	if err != nil {
 		log.Print(err)
 	}
@@ -19,11 +19,19 @@ func (repo Connection) InsertBooking(booking models.Booking) (id int64, err erro
 func (repo Connection) GetBooking(booking_id int) (booking models.Booking, err error) {
 	sql := `SELECT * FROM booking WHERE id = $1`
 	row := repo.db.QueryRow(sql, booking_id)
-
 	err = row.Scan(&booking.ID, &booking.CustomerID, &booking.RoomID, &booking.StartDatetime, &booking.EndDatetime, &booking.Status, &booking.Parking)
 	if err != nil {
 		log.Println(err)
 	}
 	return
+}
 
+func (repo Connection) GetBookingByRoom(roomID int32, DateStart string, DateEnd string) (booking models.Booking, err error) {
+	sql := `SELECT * FROM booking WHERE status not in ('canceled') AND (start_datetime <= $1 AND end_datetime >= $2) AND room_id=$3`
+	row := repo.db.QueryRow(sql, DateEnd, DateStart, roomID)
+	err = row.Scan(&booking.ID, &booking.CustomerID, &booking.RoomID, &booking.StartDatetime, &booking.EndDatetime, &booking.Status, &booking.Parking)
+	if err != nil {
+		err = row.Scan()
+	}
+	return
 }
