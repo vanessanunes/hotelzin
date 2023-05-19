@@ -63,3 +63,15 @@ func (repo Connection) GetChecking(id int64) (checking models.Checking, err erro
 	}
 	return
 }
+
+func (repo Connection) CheckoutIsDone(id int64) bool {
+	getChecking, err := repo.GetChecking(id)
+	if err != nil {
+		log.Println(err)
+	}
+	if getChecking.CheckoutDatetime != "" {
+		return true
+	}
+	return false
+
+}

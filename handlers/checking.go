@@ -111,6 +111,13 @@ func Checkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	isCheckoutAlreadyDone := usecase.IsCheckoutAlreadyDone(int64(id))
+	if isCheckoutAlreadyDone {
+		log.Printf("Esse checkout já foi feito! Impossivel fazer novamente!")
+		response.ResponseJson(w, http.StatusConflict, "Esse checkout já foi feito! Impossivel fazer novamente!")
+		return
+	}
+
 	var checking models.Checking
 	err = json.NewDecoder(r.Body).Decode(&checking)
 	if err != nil {
