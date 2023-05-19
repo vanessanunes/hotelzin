@@ -22,6 +22,10 @@ func CreateChecking(w http.ResponseWriter, r *http.Request) {
 		response.ResponseError(w, http.StatusInternalServerError, err)
 		return
 	}
+	if err = checking.Validated(); err != nil {
+		response.ResponseError(w, http.StatusBadRequest, err)
+		return
+	}
 
 	conn, err := db.OpenConnection()
 	if err != nil {

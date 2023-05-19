@@ -1,6 +1,10 @@
 package models
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+	"regexp"
+)
 
 type Booking struct {
 	ID            int64  `json:"id"`
@@ -13,6 +17,8 @@ type Booking struct {
 }
 
 func (b *Booking) Validated() error {
+	re := regexp.MustCompile(`\d{4}-\d{2}-\d{2}`)
+
 	if b.CustomerID == 0 {
 		return errors.New("Inclua o ID do cliente para realizar a reserva")
 	}
@@ -22,8 +28,16 @@ func (b *Booking) Validated() error {
 	if b.StartDatetime == "" {
 		return errors.New("Uma data deve ser incluída para inicio da reserva")
 	}
+	if b.StartDatetime != "" {
+		dateFind := re.FindStringSubmatch(b.StartDatetime)
+		b.StartDatetime = fmt.Sprintf("%s %s", dateFind[0], "16:30")
+	}
 	if b.EndDatetime == "" {
 		return errors.New("Uma data deve ser incluída para final da reserva")
+	}
+	if b.EndDatetime != "" {
+		dateFind := re.FindStringSubmatch(b.EndDatetime)
+		b.EndDatetime = fmt.Sprintf("%s %s", dateFind[0], "16:30")
 	}
 	if b.Status == "" {
 		b.Status = "reserved"
