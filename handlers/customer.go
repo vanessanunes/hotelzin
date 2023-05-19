@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 	"serasa-hotel/db"
+	"serasa-hotel/domain/repository"
 	"serasa-hotel/models"
-	"serasa-hotel/repository"
 	"serasa-hotel/response"
 	"strconv"
 
@@ -17,11 +17,11 @@ import (
 func ListCustomer(w http.ResponseWriter, r *http.Request) {
 	conn, err := db.OpenConnection()
 	if err != nil {
-		return
+		log.Println(err)
 	}
 	defer conn.Close()
 
-	repo := repository.CustomerRepository(conn)
+	repo := repository.ConnectionRepository(conn)
 	customers, err := repo.GetAllCustomer()
 	if err != nil {
 		log.Printf("Erro ao obter registros: %v", err)
@@ -38,7 +38,7 @@ func GetCustomer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer conn.Close()
-	repo := repository.CustomerRepository(conn)
+	repo := repository.ConnectionRepository(conn)
 	customers, err := repo.GetCustomer(int64(id))
 	if err != nil {
 		log.Printf("Erro ao obter registros: %v", err)
@@ -69,12 +69,11 @@ func UpdateCustomer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer conn.Close()
-	repo := repository.CustomerRepository(conn)
+	repo := repository.ConnectionRepository(conn)
 	rows, err := repo.UpdateCustomer(int64(id), customer)
 	if err != nil {
 		log.Printf("Erro ao atualizar registro: %v", err)
 		response.ResponseError(w, http.StatusInternalServerError, err)
-		// http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
@@ -111,7 +110,7 @@ func CreateCustomer(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	repo := repository.CustomerRepository(conn)
+	repo := repository.ConnectionRepository(conn)
 	lastId, err := repo.InsertCustomer(customer)
 
 	var resp map[string]any
@@ -134,7 +133,7 @@ func DeleteCustomer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer conn.Close()
-	repo := repository.CustomerRepository(conn)
+	repo := repository.ConnectionRepository(conn)
 	rows, err := repo.DeleteCustomer(int64(id))
 	if err != nil {
 		log.Printf("Erro ao fazer parse do id: %v", err)
