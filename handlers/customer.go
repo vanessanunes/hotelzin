@@ -7,14 +7,23 @@ import (
 	"net/http"
 	"serasa-hotel/db"
 	"serasa-hotel/domain/repository"
+	"serasa-hotel/domain/utils"
 	"serasa-hotel/models"
 	"serasa-hotel/response"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/gorilla/schema"
 )
 
+var decoder = schema.NewDecoder()
+
 func ListCustomer(w http.ResponseWriter, r *http.Request) {
+	var params utils.CustomerParams
+	err := decoder.Decode(&params, r.URL.Query())
+	if err != nil {
+		log.Println("Error in GET parameters : ", err)
+	}
 	conn, err := db.OpenConnection()
 	if err != nil {
 		log.Println(err)
@@ -22,7 +31,7 @@ func ListCustomer(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	repo := repository.ConnectionRepository(conn)
-	customers, err := repo.GetAllCustomer()
+	customers, err := repo.GetAllCustomer(params)
 	if err != nil {
 		log.Printf("Erro ao obter registros: %v", err)
 		response.ResponseError(w, http.StatusInternalServerError, err)
