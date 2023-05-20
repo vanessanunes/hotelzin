@@ -1,0 +1,56 @@
+basePath: /
+definitions:
+  models.Customer:
+    properties:
+      customer_id:
+        type: integer
+      document:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      phone_number:
+        type: string
+    type: object
+host: localhost:9000
+info:
+  contact:
+    name: Vanessa Nunes
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: API de Hospedagem
+  version: 1.0.0
+paths:
+  /customer:
+    post:
+      consumes:
+      - application/json
+      description: Create new Customer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Customer'
+      summary: Create new Customer
+      tags:
+      - customer
+  /customer{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a customer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Customer'
+      summary: Get a customer
+      tags:
+      - customer
+swagger: "2.0"
