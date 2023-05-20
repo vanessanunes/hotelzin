@@ -1,0 +1,9 @@
+[api]
+port = "9000"
+
+[database]
+host = "localhost"
+user = "srshoteladmin"
+pass = "serasaHotelAdmin"
+name = "serasa_hotel_db"
+driver = "postgres"
