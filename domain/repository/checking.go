@@ -12,7 +12,6 @@ func (repo Connection) InsertChecking(checking models.Checking) (id int64, err e
 		log.Print(err)
 		return 0, err
 	}
-	defer repo.db.Close()
 	return
 }
 

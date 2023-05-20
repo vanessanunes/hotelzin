@@ -1,17 +1,11 @@
 include .env
 .PHONY: up
 
-hello:
-	echo "Hello"
-
-docker-up:
+local:
 	docker-compose up -d
 
-docker-local:
-	docker-compose down; docker-compose build; docker-compose up -d
-
-docker-up-force:
-	docker-compose up --force-recreate
+first:
+	docker-compose down; docker-compose build; docker-compose up 
 
 app:
 	go run main.go

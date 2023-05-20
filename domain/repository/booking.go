@@ -13,7 +13,6 @@ func (repo Connection) InsertBooking(booking models.Booking) (id int64, err erro
 	if err != nil {
 		log.Print(err)
 	}
-	defer repo.db.Close()
 	return
 }
 
@@ -112,7 +111,6 @@ func (repo Connection) GetInfoBookingHost(customer_id int64) (hostings []models.
 
 func (repo Connection) UpdateStatus(status string, id int64) {
 	sql := fmt.Sprintf(`UPDATE booking SET status = '%s' WHERE id = %d`, status, id)
-	row := repo.db.QueryRow(sql, status, id)
-	fmt.Print(row)
+	repo.db.QueryRow(sql)
 	return
 }
