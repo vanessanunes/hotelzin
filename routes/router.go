@@ -6,6 +6,8 @@ import (
 
 func GetRoutes(r chi.Router) {
 	r.Route("/customer", routesCustomers)
-	r.Route("/checking", routesChecking)
 	r.Route("/booking", routesBooking)
+	r.Route("/checking", routesChecking)
+	r.Route("/checkout", routesCheckout)
+
 }
