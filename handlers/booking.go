@@ -8,6 +8,7 @@ import (
 	"serasa-hotel/db"
 	"serasa-hotel/domain/repository"
 	"serasa-hotel/domain/usecase"
+	"serasa-hotel/domain/utils"
 	"serasa-hotel/models"
 	"serasa-hotel/response"
 )
@@ -26,9 +27,6 @@ func CreateBooking(w http.ResponseWriter, r *http.Request) {
 	}
 
 	booked, err := usecase.CheckBookingAvailable(int32(booking.RoomID), booking.StartDatetime, booking.EndDatetime)
-	if err != nil {
-		log.Printf("Quarto %d disponivel!", booking.RoomID)
-	}
 
 	if booked != (models.Booking{}) {
 		log.Printf("Desculpe, o quarto para essa data já está ocupado. Por favor, tente outra data!")
@@ -54,4 +52,22 @@ func CreateBooking(w http.ResponseWriter, r *http.Request) {
 		}
 		response.ResponseJson(w, http.StatusCreated, resp)
 	}
+}
+
+func ListBooking(w http.ResponseWriter, r *http.Request) {
+	var params utils.BookingParams
+	err := utils.Decoder.Decode(&params, r.URL.Query())
+	conn, err := db.OpenConnection()
+	if err != nil {
+		log.Println(err)
+	}
+	defer conn.Close()
+	repo := repository.ConnectionRepository(conn)
+	customers, err := repo.GetAllBooking(params)
+	if err != nil {
+		log.Printf("Erro ao obter registros: %v", err)
+		response.ResponseError(w, http.StatusInternalServerError, err)
+		return
+	}
+	response.ResponseJson(w, http.StatusOK, customers)
 }

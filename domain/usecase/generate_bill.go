@@ -1,42 +1,48 @@
 package usecase
 
 import (
-	"fmt"
 	"log"
 	"serasa-hotel/db"
 	"serasa-hotel/domain/repository"
 	"serasa-hotel/models"
 )
 
-func GetChecking(checkingID int) (checking models.Checking) {
+func GetChecking(checkingID int64) (checking models.CheckingComplete, err error) {
 	conn, err := db.OpenConnection()
 	if err != nil {
 		log.Println(err)
+		return checking, err
 	}
 	repo := repository.ConnectionRepository(conn)
 	checking, err = repo.GetChecking(int64(checkingID))
 	if err != nil {
 		log.Fatal("Erro ao pegar informações de checking")
 	}
-	return checking
+	return
 }
 
-func GetBooking(bookingID int) (booking models.Booking) {
+func GetBooking(bookingID int64) (booking models.Booking, err error) {
 	conn, err := db.OpenConnection()
 	if err != nil {
 		log.Println(err)
+		return booking, err
 	}
 	repo := repository.ConnectionRepository(conn)
-	booking, err = repo.GetBooking(int(bookingID))
-	if err != nil {
-		log.Fatal("Erro ao pegar informações de booking")
-	}
-	return booking
+	booking = repo.GetBooking(bookingID)
+	return
 }
 
-func GenerateBill(checkingID int) int64 {
-	checking := GetChecking(checkingID)
-	booking := GetBooking(int(checking.BookingId))
+func GenerateBill(checkingID int64) int64 {
+	checking, err := GetChecking(checkingID)
+	if err != nil {
+		log.Println("Erro ao pegar dados de checking")
+		return 0
+	}
+	booking, err := GetBooking(*checking.BookingId)
+	if err != nil {
+		log.Println("Erro ao pegar dados de reserva")
+		return 0
+	}
 	extraHour := ExtraHour(checking, booking)
 	totalValue := CalculateTotal(checking, booking.Parking, extraHour)
 
@@ -44,37 +50,37 @@ func GenerateBill(checkingID int) int64 {
 	if err != nil {
 		log.Println("Erro ao abrir conexão")
 	}
+	if err != nil {
+		log.Println("Erro com conexão")
+		return 0
+	}
 	repo := repository.ConnectionRepository(conn)
-	var bill models.Bill
-	bill.BookingId = booking.ID
-	bill.ExtraHour = extraHour
-	bill.TotalValue = totalValue
+	bill := models.Bill{BookingId: booking.ID, ExtraHour: extraHour, TotalValue: totalValue}
 	row, err := repo.InsertBill(bill)
 	if err != nil {
-		log.Println("Erro ao abrir conexão")
+		log.Println("Erro ao inserir conta")
 	}
 	return row
 }
 
-func CalculateTotal(checking models.Checking, bookingParking bool, extraHour int32) float32 {
+func CalculateTotal(checking models.CheckingComplete, bookingParking bool, extraHour int32) float32 {
 	totalValueParking := float32(0.0)
 	if bookingParking {
-		totalValueParking = ParkingTotalValue(checking.CheckingDatetime, checking.CheckoutDatetime)
+		totalValueParking = ParkingTotalValue(*checking.CheckingDatetime, *checking.CheckoutDatetime)
 		totalValueParking += CalculateExtraParkingHour(extraHour)
 	}
-	totalValueRoom := RoomTotalValue(checking.CheckingDatetime, checking.CheckoutDatetime)
+	totalValueRoom := RoomTotalValue(*checking.CheckingDatetime, *checking.CheckoutDatetime)
 	totalValueRoom += CalculateExtraRoomHour(extraHour)
 	total := totalValueParking + totalValueRoom
 	return total
 }
 
-func ExtraHour(checking models.Checking, booking models.Booking) int32 {
+func ExtraHour(checking models.CheckingComplete, booking models.Booking) int32 {
 	_, BookingDateEnd := ConvertDBDateToDateTime(booking.StartDatetime, booking.EndDatetime)
-	_, CheckingDateEnd := ConvertDBDateToDateTime(checking.CheckingDatetime, checking.CheckoutDatetime)
+	_, CheckingDateEnd := ConvertDBDateToDateTime(*checking.CheckingDatetime, *checking.CheckoutDatetime)
 	diff := CheckingDateEnd.Sub(BookingDateEnd)
 	diffHours := diff.Hours() / 24
-	fmt.Println(diffHours)
-	if diff.Hours()/24 <= 0 {
+	if diffHours <= 0 {
 		return 0
 	}
 	return 1
