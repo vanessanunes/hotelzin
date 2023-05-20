@@ -8,9 +8,5 @@ import (
 
 func routesBooking(r chi.Router) {
 	r.Post("/", handlers.CreateBooking)
-	// r.Get("/", handlers.ListCheckings)
-	// r.Get("/{id}", handlers.GetCustomer)
-	// r.Put("/{id}", handlers.UpdateChecking)
-	// r.Post("/", handlers.CreateCustomer)
-	// r.Delete("/{id}", handlers.DeleteCustomer)
+	r.Get("/", handlers.ListBooking)
 }
