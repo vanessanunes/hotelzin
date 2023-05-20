@@ -13,14 +13,11 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/gorilla/schema"
 )
-
-var decoder = schema.NewDecoder()
 
 func ListCustomer(w http.ResponseWriter, r *http.Request) {
 	var params utils.CustomerParams
-	err := decoder.Decode(&params, r.URL.Query())
+	err := utils.Decoder.Decode(&params, r.URL.Query())
 	if err != nil {
 		log.Println("Error in GET parameters : ", err)
 	}
@@ -29,7 +26,6 @@ func ListCustomer(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 	}
 	defer conn.Close()
-
 	repo := repository.ConnectionRepository(conn)
 	customers, err := repo.GetAllCustomer(params)
 	if err != nil {
@@ -48,13 +44,21 @@ func GetCustomer(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 	repo := repository.ConnectionRepository(conn)
-	customers, err := repo.GetCustomer(int64(id))
+	customer, err := repo.GetCustomer(int64(id))
 	if err != nil {
 		log.Printf("Erro ao obter registros: %v", err)
 		response.ResponseError(w, http.StatusInternalServerError, err)
 		return
 	}
-	response.ResponseJson(w, http.StatusOK, customers)
+	bookings, err := repo.GetInfoBookingHost(int64(id))
+	if err != nil {
+		log.Printf("Erro ao obter registros: %v", err)
+		response.ResponseError(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer conn.Close()
+	hosting := models.CustomerWithHosting{Customer: customer, Hostings: bookings, TotalValue: 0.0}
+	response.ResponseJson(w, http.StatusOK, hosting)
 }
 
 func UpdateCustomer(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +68,6 @@ func UpdateCustomer(w http.ResponseWriter, r *http.Request) {
 		response.ResponseError(w, http.StatusInternalServerError, err)
 		return
 	}
-
 	var customer models.Customer
 	err = json.NewDecoder(r.Body).Decode(&customer)
 	if err != nil {
@@ -72,7 +75,6 @@ func UpdateCustomer(w http.ResponseWriter, r *http.Request) {
 		response.ResponseError(w, http.StatusInternalServerError, err)
 		return
 	}
-
 	conn, err := db.OpenConnection()
 	if err != nil {
 		return
@@ -89,11 +91,9 @@ func UpdateCustomer(w http.ResponseWriter, r *http.Request) {
 	if rows > 1 {
 		log.Printf("Erros: foram atualizadas %d registros", rows)
 	}
-
 	resp := map[string]any{
 		"message": "dados atualizados com sucesso!",
 	}
-
 	response.ResponseJson(w, http.StatusOK, resp)
 
 }
@@ -149,11 +149,9 @@ func DeleteCustomer(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-
 	if rows > 1 {
 		log.Printf("Erros: foram removidos %d registros", rows)
 	}
-
 	resp := map[string]any{
 		"message": "dados removidos com suscesso!",
 	}
