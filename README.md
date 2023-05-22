@@ -2,9 +2,13 @@
 
 ## utilizando
 Golang
+
 Chi
+
 Docker
+
 ~~Go Migrate~~
+
 Swaggo
 
 ## configurando
