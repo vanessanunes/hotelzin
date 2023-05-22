@@ -13,8 +13,8 @@ func CalculateRoomTotalValue(weekday int, weekend int) float32 {
 	return float32(weekday)*weekdayRoomValue + float32(weekend)*weekendRoomValue
 }
 
-func CalculateExtraRoomHour(extraHour int32) float32 {
-	if extraHour == 1 {
+func CalculateExtraRoomHour(extraHour bool) float32 {
+	if extraHour == true {
 		return weekdayRoomValue
 	}
 	return 0

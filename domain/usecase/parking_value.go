@@ -13,8 +13,8 @@ func CalculateParkingTotalValue(weekday int, weekend int) float32 {
 	return (float32(weekday) * weekdayParkValue) + (float32(weekend) * weekendParkValue)
 }
 
-func CalculateExtraParkingHour(extraHour int32) float32 {
-	if extraHour == 1 {
+func CalculateExtraParkingHour(extraHour bool) float32 {
+	if extraHour == true {
 		return weekdayParkValue
 	}
 	return 0
