@@ -14,7 +14,340 @@
     "host": "localhost:9000",
     "basePath": "/",
     "paths": {
+        "/bill": {
+            "get": {
+                "description": "The bill is automatically generated once checkout is completed. This endpoint return all registry.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bill"
+                ],
+                "summary": "Get list of bills",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "1",
+                        "name": "booking_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Bill"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/bill/{id}": {
+            "get": {
+                "description": "Get a bill",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "bill"
+                ],
+                "summary": "Get a bill",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "1",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.BillWithPayment"
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/booking": {
+            "get": {
+                "description": "List all bookings at the hotel. Can use status filter.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "booking"
+                ],
+                "summary": "Get list of bookings",
+                "parameters": [
+                    {
+                        "enum": [
+                            "reserved",
+                            "checking",
+                            "checkout",
+                            "canceled"
+                        ],
+                        "type": "string",
+                        "description": "string enums",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Booking"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new booking intent at the hotel.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "booking"
+                ],
+                "summary": "Create new booking",
+                "parameters": [
+                    {
+                        "description": "booking",
+                        "name": "booking",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Booking"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/checking": {
+            "get": {
+                "description": "Returns a list of all checkouts ever made",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "checking"
+                ],
+                "summary": "Get list of checking",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.CheckingComplete"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Creates a new checking of a reservation already made in booking endpoint",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "checking"
+                ],
+                "summary": "Create new checking",
+                "parameters": [
+                    {
+                        "description": "checking",
+                        "name": "checking",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Checking"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/checkout": {
+            "patch": {
+                "description": "Enter the day and time of checkout. It can only be effective after checking.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "checkout"
+                ],
+                "summary": "Create new checkout",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "2023-05-20 20:00:00",
+                        "name": "checking",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "description": "checkout",
+                        "name": "checkout",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Checkout"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/customer": {
+            "get": {
+                "description": "Get list of customer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "customer"
+                ],
+                "summary": "Get list of customer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "1",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "1165556989",
+                        "name": "phone",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "40140154588",
+                        "name": "document",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Customer"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Create new Customer",
                 "consumes": [
@@ -27,17 +360,77 @@
                     "customer"
                 ],
                 "summary": "Create new Customer",
-                "responses": {
-                    "200": {
-                        "description": "OK",
+                "parameters": [
+                    {
+                        "description": "customer",
+                        "name": "customer",
+                        "in": "body",
+                        "required": true,
                         "schema": {
                             "$ref": "#/definitions/models.Customer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
             }
         },
-        "/customer{id}": {
+        "/customer/": {
+            "put": {
+                "description": "Update a customer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "customer"
+                ],
+                "summary": "Update a customer",
+                "parameters": [
+                    {
+                        "description": "customer",
+                        "name": "customer",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Customer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Customer"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/customer/{id}": {
             "get": {
                 "description": "Get a customer",
                 "consumes": [
@@ -50,11 +443,102 @@
                     "customer"
                 ],
                 "summary": "Get a customer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "1",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.Customer"
+                            "$ref": "#/definitions/models.CustomerWithHosting"
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a customer",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "customer"
+                ],
+                "summary": "Delete a customer",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "1",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/payment": {
+            "post": {
+                "description": "After checkout, an bill is generated. This endpoint must be used to register the payment informing the bill's ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payment"
+                ],
+                "summary": "Create new payment",
+                "parameters": [
+                    {
+                        "description": "payment",
+                        "name": "payment",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Payment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "error",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -62,11 +546,133 @@
         }
     },
     "definitions": {
-        "models.Customer": {
+        "models.Bill": {
+            "type": "object",
+            "properties": {
+                "booking_id": {
+                    "type": "integer"
+                },
+                "extra_hour": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "total_value": {
+                    "type": "number"
+                }
+            }
+        },
+        "models.BillWithPayment": {
+            "type": "object",
+            "properties": {
+                "booking_id": {
+                    "type": "integer"
+                },
+                "extra_hour": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "payment": {
+                    "$ref": "#/definitions/models.Payment"
+                },
+                "total_value": {
+                    "type": "number"
+                }
+            }
+        },
+        "models.Booking": {
             "type": "object",
             "properties": {
                 "customer_id": {
                     "type": "integer"
+                },
+                "end_datetime": {
+                    "type": "string",
+                    "example": "2023/05/20"
+                },
+                "parking": {
+                    "type": "boolean"
+                },
+                "room_id": {
+                    "type": "integer"
+                },
+                "start_datetime": {
+                    "type": "string",
+                    "example": "2023/05/20"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Checking": {
+            "type": "object",
+            "properties": {
+                "booking_id": {
+                    "type": "integer"
+                },
+                "checking_datetime": {
+                    "type": "string",
+                    "example": "2023-05-20 20:00:00"
+                }
+            }
+        },
+        "models.CheckingComplete": {
+            "type": "object",
+            "properties": {
+                "booking_id": {
+                    "type": "integer"
+                },
+                "checking_datetime": {
+                    "type": "string",
+                    "example": "2023-05-20 20:00:00"
+                },
+                "checkout_datetime": {
+                    "type": "string",
+                    "example": "2023-05-20 20:00:00"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Checkout": {
+            "type": "object",
+            "properties": {
+                "checkout_datetime": {
+                    "type": "string",
+                    "example": "2023-05-20 20:00:00"
+                }
+            }
+        },
+        "models.Customer": {
+            "type": "object",
+            "properties": {
+                "document": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.CustomerWithHosting": {
+            "type": "object",
+            "properties": {
+                "bookings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Hosting"
+                    }
                 },
                 "document": {
                     "type": "string"
@@ -79,6 +685,61 @@
                 },
                 "phone_number": {
                     "type": "string"
+                },
+                "total_value": {
+                    "type": "number"
+                }
+            }
+        },
+        "models.Hosting": {
+            "type": "object",
+            "properties": {
+                "booked_end_datetime": {
+                    "type": "string"
+                },
+                "booked_start_datetime": {
+                    "type": "string"
+                },
+                "booking_id": {
+                    "type": "integer"
+                },
+                "checking": {
+                    "type": "string"
+                },
+                "checking_id": {
+                    "type": "integer"
+                },
+                "checkout": {
+                    "type": "string"
+                },
+                "parking": {
+                    "type": "boolean"
+                },
+                "room_number": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "number"
+                }
+            }
+        },
+        "models.Payment": {
+            "type": "object",
+            "properties": {
+                "bill_id": {
+                    "type": "integer"
+                },
+                "installments": {
+                    "type": "integer"
+                },
+                "type_payment": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "number"
                 }
             }
         }

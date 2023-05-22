@@ -1,9 +1,75 @@
 basePath: /
 definitions:
-  models.Customer:
+  models.Bill:
+    properties:
+      booking_id:
+        type: integer
+      extra_hour:
+        type: boolean
+      id:
+        type: integer
+      total_value:
+        type: number
+    type: object
+  models.BillWithPayment:
+    properties:
+      booking_id:
+        type: integer
+      extra_hour:
+        type: boolean
+      id:
+        type: integer
+      payment:
+        $ref: '#/definitions/models.Payment'
+      total_value:
+        type: number
+    type: object
+  models.Booking:
     properties:
       customer_id:
         type: integer
+      end_datetime:
+        example: 2023/05/20
+        type: string
+      parking:
+        type: boolean
+      room_id:
+        type: integer
+      start_datetime:
+        example: 2023/05/20
+        type: string
+      status:
+        type: string
+    type: object
+  models.Checking:
+    properties:
+      booking_id:
+        type: integer
+      checking_datetime:
+        example: "2023-05-20 20:00:00"
+        type: string
+    type: object
+  models.CheckingComplete:
+    properties:
+      booking_id:
+        type: integer
+      checking_datetime:
+        example: "2023-05-20 20:00:00"
+        type: string
+      checkout_datetime:
+        example: "2023-05-20 20:00:00"
+        type: string
+      status:
+        type: string
+    type: object
+  models.Checkout:
+    properties:
+      checkout_datetime:
+        example: "2023-05-20 20:00:00"
+        type: string
+    type: object
+  models.Customer:
+    properties:
       document:
         type: string
       email:
@@ -12,6 +78,57 @@ definitions:
         type: string
       phone_number:
         type: string
+    type: object
+  models.CustomerWithHosting:
+    properties:
+      bookings:
+        items:
+          $ref: '#/definitions/models.Hosting'
+        type: array
+      document:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      phone_number:
+        type: string
+      total_value:
+        type: number
+    type: object
+  models.Hosting:
+    properties:
+      booked_end_datetime:
+        type: string
+      booked_start_datetime:
+        type: string
+      booking_id:
+        type: integer
+      checking:
+        type: string
+      checking_id:
+        type: integer
+      checkout:
+        type: string
+      parking:
+        type: boolean
+      room_number:
+        type: string
+      status:
+        type: string
+      value:
+        type: number
+    type: object
+  models.Payment:
+    properties:
+      bill_id:
+        type: integer
+      installments:
+        type: integer
+      type_payment:
+        type: string
+      value:
+        type: number
     type: object
 host: localhost:9000
 info:
@@ -23,34 +140,358 @@ info:
   title: API de Hospedagem
   version: 1.0.0
 paths:
+  /bill:
+    get:
+      consumes:
+      - application/json
+      description: The bill is automatically generated once checkout is completed.
+        This endpoint return all registry.
+      parameters:
+      - description: "1"
+        in: query
+        name: booking_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Bill'
+            type: array
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Get list of bills
+      tags:
+      - bill
+  /bill/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a bill
+      parameters:
+      - description: "1"
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.BillWithPayment'
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Get a bill
+      tags:
+      - bill
+  /booking:
+    get:
+      consumes:
+      - application/json
+      description: List all bookings at the hotel. Can use status filter.
+      parameters:
+      - description: string enums
+        enum:
+        - reserved
+        - checking
+        - checkout
+        - canceled
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Booking'
+            type: array
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Get list of bookings
+      tags:
+      - booking
+    post:
+      consumes:
+      - application/json
+      description: Create a new booking intent at the hotel.
+      parameters:
+      - description: booking
+        in: body
+        name: booking
+        required: true
+        schema:
+          $ref: '#/definitions/models.Booking'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Create new booking
+      tags:
+      - booking
+  /checking:
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of all checkouts ever made
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.CheckingComplete'
+            type: array
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Get list of checking
+      tags:
+      - checking
+    post:
+      consumes:
+      - application/json
+      description: Creates a new checking of a reservation already made in booking
+        endpoint
+      parameters:
+      - description: checking
+        in: body
+        name: checking
+        required: true
+        schema:
+          $ref: '#/definitions/models.Checking'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Create new checking
+      tags:
+      - checking
+  /checkout:
+    patch:
+      consumes:
+      - application/json
+      description: Enter the day and time of checkout. It can only be effective after
+        checking.
+      parameters:
+      - description: "2023-05-20 20:00:00"
+        in: query
+        name: checking
+        required: true
+        type: string
+      - description: checkout
+        in: body
+        name: checkout
+        required: true
+        schema:
+          $ref: '#/definitions/models.Checkout'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Create new checkout
+      tags:
+      - checkout
   /customer:
+    get:
+      consumes:
+      - application/json
+      description: Get list of customer
+      parameters:
+      - description: "1"
+        in: query
+        name: id
+        required: true
+        type: integer
+      - description: "1165556989"
+        in: query
+        name: phone
+        required: true
+        type: integer
+      - description: "40140154588"
+        in: query
+        name: document
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Customer'
+            type: array
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Get list of customer
+      tags:
+      - customer
     post:
       consumes:
       - application/json
       description: Create new Customer
+      parameters:
+      - description: customer
+        in: body
+        name: customer
+        required: true
+        schema:
+          $ref: '#/definitions/models.Customer'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Create new Customer
+      tags:
+      - customer
+  /customer/:
+    put:
+      consumes:
+      - application/json
+      description: Update a customer
+      parameters:
+      - description: customer
+        in: body
+        name: customer
+        required: true
+        schema:
+          $ref: '#/definitions/models.Customer'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Customer'
-      summary: Create new Customer
+            items:
+              $ref: '#/definitions/models.Customer'
+            type: array
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Update a customer
       tags:
       - customer
-  /customer{id}:
+  /customer/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a customer
+      parameters:
+      - description: "1"
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Delete a customer
+      tags:
+      - customer
     get:
       consumes:
       - application/json
       description: Get a customer
+      parameters:
+      - description: "1"
+        in: query
+        name: id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.Customer'
+            $ref: '#/definitions/models.CustomerWithHosting'
+        "500":
+          description: error
+          schema:
+            type: string
       summary: Get a customer
       tags:
       - customer
+  /payment:
+    post:
+      consumes:
+      - application/json
+      description: After checkout, an bill is generated. This endpoint must be used
+        to register the payment informing the bill's ID.
+      parameters:
+      - description: payment
+        in: body
+        name: payment
+        required: true
+        schema:
+          $ref: '#/definitions/models.Payment'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            type: string
+        "500":
+          description: error
+          schema:
+            type: string
+      summary: Create new payment
+      tags:
+      - payment
 swagger: "2.0"
