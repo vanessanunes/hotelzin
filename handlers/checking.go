@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"serasa-hotel/db"
@@ -14,6 +15,15 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+//	@Summary		Create new checking
+//	@Description	Creates a new checking of a reservation already made in booking endpoint
+//	@Tags			checking
+//	@Accept			json
+//	@Produce		json
+//	@Param			checking	body		models.Checking	true	"checking"
+//	@Success		200			{string}	string			"ok"
+//	@Failure		500			{string}	string			"error"
+//	@Router			/checking [post]
 func CreateChecking(w http.ResponseWriter, r *http.Request) {
 	var checking models.Checking
 	err := json.NewDecoder(r.Body).Decode(&checking)
@@ -35,31 +45,42 @@ func CreateChecking(w http.ResponseWriter, r *http.Request) {
 	conn, err := db.OpenConnection()
 	if err != nil {
 		log.Println(err)
+		response.ResponseJson(w, http.StatusInternalServerError, "Erro com a conexão com banco de dados. Por favor, tente mais tarde.")
 	}
-	defer conn.Close()
 	repo := repository.ConnectionRepository(conn)
 	id, err := repo.InsertChecking(checking)
 	if err != nil {
 		log.Println(err)
-		response.ResponseError(w, http.StatusInternalServerError, err)
+		response.ResponseJson(w, http.StatusInternalServerError, "Erro ao tentar fazer checking. Por favor, tente mais tarde.")
 	}
-	repo.UpdateStatus("checking", id)
+	repo.UpdateStatus("checking", *checking.BookingId)
 	var resp map[string]any
 	if err != nil {
 		log.Println(err)
-		response.ResponseError(w, http.StatusInternalServerError, err)
+		response.ResponseJson(w, http.StatusInternalServerError, "Erro ao tentar fazer Update. Por favor, verifique as informações e tente mais tarde.")
 	} else {
 		resp = map[string]any{
-			"message": "Checking efetuado com sucesso!",
+			"message": fmt.Sprintf("Checking %d efetuado com sucesso!", id),
 		}
 		response.ResponseJson(w, http.StatusCreated, resp)
 	}
+	defer conn.Close()
 }
 
+//	@Summary		Get list of checking
+//	@Description	Returns a list of all checkouts ever made
+//
+//	@Tags			checking
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{array}		models.CheckingComplete
+//	@Failure		500	{string}	string	"error"
+//	@Router			/checking [get]
 func ListCheckings(w http.ResponseWriter, r *http.Request) {
 	conn, err := db.OpenConnection()
 	if err != nil {
 		log.Println(err)
+		response.ResponseJson(w, http.StatusInternalServerError, "Erro com a conexão com banco de dados. Por favor, tente mais tarde.")
 	}
 	defer conn.Close()
 
@@ -73,6 +94,16 @@ func ListCheckings(w http.ResponseWriter, r *http.Request) {
 	response.ResponseJson(w, http.StatusOK, checkings)
 }
 
+//	@Summary		Create new checkout
+//	@Description	Enter the day and time of checkout. It can only be effective after checking.
+//	@Tags			checkout
+//	@Accept			json
+//	@Produce		json
+//	@Param			checking	query		string			true	"2023-05-20 20:00:00"
+//	@Param			checkout	body		models.Checkout	true	"checkout"
+//	@Success		200			{string}	string			"ok"
+//	@Failure		500			{string}	string			"error"
+//	@Router			/checkout [patch]
 func Checkout(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {

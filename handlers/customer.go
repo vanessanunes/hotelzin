@@ -15,6 +15,17 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// @Summary		Get list of customer
+// @Description	Get list of customer
+// @Tags			customer
+// @Accept			json
+// @Param			id			query	integer	true	"1"
+// @Param			phone		query	integer	true	"1165556989"
+// @Param			document	query	integer	true	"40140154588"
+// @Produce		json
+// @Success		200	{array}		models.Customer
+// @Failure		500	{string}	string	"error"
+// @Router			/customer [get]
 func ListCustomer(w http.ResponseWriter, r *http.Request) {
 	var params utils.CustomerParams
 	err := utils.Decoder.Decode(&params, r.URL.Query())
@@ -36,18 +47,29 @@ func ListCustomer(w http.ResponseWriter, r *http.Request) {
 	response.ResponseJson(w, http.StatusOK, customers)
 }
 
+// @Summary		Get a customer
+// @Description	Get a customer
+// @Tags			customer
+// @Accept			json
+// @Param			id	query	integer	true	"1"
+// @Produce		json
+// @Success		200	{object}	models.CustomerWithHosting
+// @Failure		500	{string}	string	"error"
+// @Router			/customer/{id} [get]
 func GetCustomer(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	conn, err := db.OpenConnection()
 	if err != nil {
 		return
 	}
-	defer conn.Close()
 	repo := repository.ConnectionRepository(conn)
 	customer, err := repo.GetCustomer(int64(id))
 	if err != nil {
-		log.Printf("Erro ao obter registros: %v", err)
-		response.ResponseError(w, http.StatusInternalServerError, err)
+		log.Printf("Erro ao obter registros: %v. ID: %d", err, id)
+		resp := map[string]any{
+			"message": fmt.Sprintf("Registro de cliente não encontrado: %d", id),
+		}
+		response.ResponseJson(w, http.StatusInternalServerError, resp)
 		return
 	}
 	bookings, err := repo.GetInfoBookingHost(int64(id))
@@ -61,6 +83,15 @@ func GetCustomer(w http.ResponseWriter, r *http.Request) {
 	response.ResponseJson(w, http.StatusOK, hosting)
 }
 
+// @Summary		Update a customer
+// @Description	Update a customer
+// @Tags			customer
+// @Accept			json
+// @Param			customer	body	models.Customer	true	"customer"
+// @Produce		json
+// @Success		200	{array}		models.Customer
+// @Failure		500	{string}	string	"error"
+// @Router			/customer/ [put]
 func UpdateCustomer(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	if err != nil {
@@ -98,6 +129,15 @@ func UpdateCustomer(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// @Summary		Create new Customer
+// @Description	Create new Customer
+// @Tags			customer
+// @Accept			json
+// @Produce		json
+// @Param			customer	body		models.Customer	true	"customer"
+// @Success		200			{string}	string			"ok"
+// @Failure		500			{string}	string			"error"
+// @Router			/customer [post]
 func CreateCustomer(w http.ResponseWriter, r *http.Request) {
 	var customer models.Customer
 
@@ -115,6 +155,7 @@ func CreateCustomer(w http.ResponseWriter, r *http.Request) {
 
 	conn, err := db.OpenConnection()
 	if err != nil {
+		response.ResponseJson(w, http.StatusInternalServerError, "Erro com a conexão com banco de dados. Por favor, tente mais tarde.")
 		return
 	}
 	defer conn.Close()
@@ -126,7 +167,7 @@ func CreateCustomer(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		log.Println(err)
-		response.ResponseError(w, http.StatusCreated, err)
+		response.ResponseError(w, http.StatusInternalServerError, err)
 	} else {
 		resp = map[string]any{
 			"message": fmt.Sprintf("Cliente inserido com sucesso! ID: %d", lastId),
@@ -135,6 +176,15 @@ func CreateCustomer(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// @Summary		Delete a customer
+// @Description	Delete a customer
+// @Tags			customer
+// @Accept			json
+// @Param			id	query	integer	true	"1"
+// @Produce		json
+// @Success		200	{string}	string	"ok"
+// @Failure		500	{string}	string	"error"
+// @Router			/customer/{id} [delete]
 func DeleteCustomer(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(chi.URLParam(r, "id"))
 	conn, err := db.OpenConnection()
