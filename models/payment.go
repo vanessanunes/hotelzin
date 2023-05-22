@@ -3,11 +3,11 @@ package models
 import "errors"
 
 type Payment struct {
-	ID           int64   `json:"id,omitempty"`
-	BillID       int64   `json:"bill_id,omitempty"`
-	TotalValue   float32 `json:"value,omitempty"`
-	TypePayment  string  `json:"type_payment,omitempty"`
-	Installments int     `json:"installments,omitempty"`
+	ID           int64   `json:"id" swaggerignore:"true"`
+	BillID       int64   `json:"bill_id"`
+	TotalValue   float32 `json:"value"`
+	TypePayment  string  `json:"type_payment"`
+	Installments int     `json:"installments"`
 }
 
 func (b *Payment) Validated() error {

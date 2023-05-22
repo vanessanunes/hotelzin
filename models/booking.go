@@ -7,13 +7,13 @@ import (
 )
 
 type Booking struct {
-	ID            int64  `json:"booking_id"`
+	ID            int64  `json:"booking_id,omitempty" swaggerignore:"true"`
 	CustomerID    int64  `json:"customer_id,omitemptyd"`
-	RoomID        int64  `json:"room_id,omitempty"`
-	StartDatetime string `json:"start_datetime,omitempty"`
-	EndDatetime   string `json:"end_datetime,omitempty"`
-	Status        string `json:"status,omitempty"`
-	Parking       bool   `json:"parking,omitempty"`
+	RoomID        int64  `json:"room_id"`
+	StartDatetime string `json:"start_datetime" example:"2023/05/20"`
+	EndDatetime   string `json:"end_datetime" example:"2023/05/20"`
+	Status        string `json:"status" collection:"reserved,checking,checkout,canceled"`
+	Parking       bool   `json:"parking"`
 }
 
 type BookingAllInformations struct {
@@ -30,9 +30,9 @@ type BookingAllInformations struct {
 	RoomID               *int64  `json:"room_id"`
 	RoomNumber           *int32  `json:"room_number"`
 	Description          *string `json:"room_description"`
-	CheckingID           *int64  `json:"checking_id,omitempty"`
-	CheckingDatetime     *string `json:"checking_datetime,omitempty"`
-	CheckoutDatetime     *string `json:"checkout_datetime,omitempty"`
+	CheckingID           *int64  `json:"checking_id"`
+	CheckingDatetime     *string `json:"checking_datetime"`
+	CheckoutDatetime     *string `json:"checkout_datetime"`
 }
 
 type Hosting struct {

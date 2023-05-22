@@ -3,13 +3,13 @@ package models
 import "errors"
 
 type Checking struct {
-	ID               *int64  `json:"id"`
+	ID               *int64  `json:"id,omitempty" swaggerignore:"true"`
 	BookingId        *int64  `json:"booking_id"`
-	CheckingDatetime *string `json:"checking_datetime,omitempty"`
+	CheckingDatetime *string `json:"checking_datetime,omitempty" example:"2023-05-20 20:00:00"`
 }
 
 type Checkout struct {
-	CheckoutDatetime *string `json:"checkout_datetime,omitempty"`
+	CheckoutDatetime *string `json:"checkout_datetime,omitempty" example:"2023-05-20 20:00:00"`
 }
 
 type CheckingComplete struct {

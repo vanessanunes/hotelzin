@@ -3,7 +3,7 @@ package models
 import "errors"
 
 type Customer struct {
-	ID          int64  `json:"customer_id,omitempty"`
+	ID          int64  `json:"customer_id,omitempty" swaggerignore:"true"`
 	Name        string `json:"name,omitempty"`
 	Document    string `json:"document,omitempty"`
 	PhoneNumber string `json:"phone_number,omitempty"`
