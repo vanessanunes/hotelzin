@@ -55,7 +55,7 @@ func GenerateBill(checkingID int64) int64 {
 		return 0
 	}
 	repo := repository.ConnectionRepository(conn)
-	bill := models.Bill{BookingId: booking.ID, ExtraHour: extraHour, TotalValue: totalValue}
+	bill := models.Bill{BookingId: &booking.ID, ExtraHour: &extraHour, TotalValue: &totalValue}
 	row, err := repo.InsertBill(bill)
 	if err != nil {
 		log.Println("Erro ao inserir conta")
@@ -63,7 +63,7 @@ func GenerateBill(checkingID int64) int64 {
 	return row
 }
 
-func CalculateTotal(checking models.CheckingComplete, bookingParking bool, extraHour int32) float32 {
+func CalculateTotal(checking models.CheckingComplete, bookingParking bool, extraHour bool) float32 {
 	totalValueParking := float32(0.0)
 	if bookingParking {
 		totalValueParking = ParkingTotalValue(*checking.CheckingDatetime, *checking.CheckoutDatetime)
@@ -75,13 +75,13 @@ func CalculateTotal(checking models.CheckingComplete, bookingParking bool, extra
 	return total
 }
 
-func ExtraHour(checking models.CheckingComplete, booking models.Booking) int32 {
+func ExtraHour(checking models.CheckingComplete, booking models.Booking) bool {
 	_, BookingDateEnd := ConvertDBDateToDateTime(booking.StartDatetime, booking.EndDatetime)
 	_, CheckingDateEnd := ConvertDBDateToDateTime(*checking.CheckingDatetime, *checking.CheckoutDatetime)
 	diff := CheckingDateEnd.Sub(BookingDateEnd)
 	diffHours := diff.Hours() / 24
 	if diffHours <= 0 {
-		return 0
+		return false
 	}
-	return 1
+	return true
 }

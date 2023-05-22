@@ -64,7 +64,7 @@ func (repo Connection) GetBookingByRoom(roomID int32, DateStart string, DateEnd 
 	row := repo.db.QueryRow(sql, DateEnd, DateStart, roomID)
 	err = row.Scan(&booking.ID, &booking.CustomerID, &booking.RoomID, &booking.StartDatetime, &booking.EndDatetime, &booking.Status, &booking.Parking)
 	if err != nil {
-		err = row.Scan()
+		log.Print(err)
 	}
 	return
 }
