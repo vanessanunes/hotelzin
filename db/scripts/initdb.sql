@@ -47,7 +47,7 @@ CREATE TYPE payments AS ENUM ('credit card', 'cash', 'pix');
 create table payment (
     id serial primary key,
     bill_id int NOT NULL,
-    value numeric(5, 3),
+    total_value numeric(5, 2),
     type_payment payments,
     installments int,
     foreign key (bill_id) REFERENCES bill (id)
@@ -113,8 +113,6 @@ INSERT INTO room (room_number,description) VALUES
 INSERT INTO booking (customer_id,room_id,start_datetime,end_datetime,status,parking) VALUES
 	 (1,2,'2023-05-17 19:17:40.26867','2023-05-18 14:00:00','checking',true);
 
-INSERT INTO checkin (booking_id,checking_datetime,checkout_datetime) VALUES
-	 (1,'2023-05-17 16:01:00','2023-05-18 16:01:00');
 
 
 
